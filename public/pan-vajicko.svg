@@ -1,0 +1,22 @@
+<!-- ===========================================================
+     PLACEHOLDER — replace with the official Pan Vajíčko artwork.
+     Drop the real file here at the same path and the site picks
+     it up with no code changes.
+
+     `stroke="currentColor"` makes the mark inherit whatever text
+     colour surrounds it, so one file covers both the light and
+     dark variants of the brand asset automatically.
+     =========================================================== -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"
+     fill="none" stroke="currentColor" stroke-width="7"
+     stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Pan Vajíčko – Slušně vychovaná vejce">
+  <ellipse cx="100" cy="108" rx="62" ry="82" />
+  <path d="M34 78 L166 58" />
+  <path d="M34 78 L58 66 L58 92 Z" />
+  <path d="M166 58 L142 70 L142 96 Z" />
+  <path d="M82 190 L82 240" />
+  <path d="M118 190 L118 240" />
+  <path d="M70 240 L94 240" />
+  <path d="M106 240 L130 240" />
+</svg>

@@ -1,20 +1,130 @@
 ---
-// Everything between the --- fences is "frontmatter": JavaScript that runs at
-// BUILD time, on the server, never in the visitor's browser. Use it to define
-// variables, read files, or fetch data. Nothing here is shipped to the browser.
-const campaignName = 'Campaign Name';
+import Layout from '../layouts/Layout.astro';
+
+// Content lives in plain arrays at the top of the file rather than being typed
+// out in the markup below. It keeps the template readable, and it means moving
+// this into a CMS or a translation file later is a copy-paste, not a rewrite.
+const benefits = [
+  {
+    title: 'Značka na obalu',
+    body: 'Pan Vajíčko na vašich výrobcích. Zákazník pozná na první pohled, že uvnitř nejsou klecová vejce — bez čtení drobného písma.',
+  },
+  {
+    title: 'Zápis do veřejného seznamu',
+    body: 'Vaše firma se objeví v přehledu certifikovaných výrobců, kam odkazujeme z našich kampaní i z médií.',
+  },
+  {
+    title: 'Ověřeno nezávisle',
+    body: 'Certifikaci uděluje spolek OBRAZ, který se bezklecovému chovu věnuje dlouhodobě. Není to vaše vlastní tvrzení — je to doložený fakt.',
+  },
+];
 ---
 
-<!-- Below the fences is the HTML template. `{campaignName}` drops the value
-     of that variable into the markup. -->
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{campaignName}</title>
-  </head>
-  <body>
-    <h1>{campaignName}</h1>
-    <p>Placeholder. We replace this together.</p>
-  </body>
-</html>
+<Layout title="Certifikace pro výrobce">
+
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__text">
+        <h1>Slušně vychovaná vejce</h1>
+        <p class="lead">
+          Certifikace pro české výrobce, kteří nepoužívají vejce z klecových chovů.
+          Ani ve skořápce, ani v melanži, ani v sušeném bílku. Nikde.
+        </p>
+        <div class="hero__actions">
+          <a href="/prihlaska" class="btn btn--primary">Podat přihlášku</a>
+          <a href="#jak-to-funguje" class="btn btn--ghost">Jak to funguje</a>
+        </div>
+      </div>
+
+      <!-- aria-hidden: the mark is decorative here because the <h1> right next
+           to it already says the same words. Announcing it twice is noise for
+           anyone using a screen reader. -->
+      <div class="hero__mark" aria-hidden="true">
+        <img src="/pan-vajicko.svg" alt="" width="260" height="338" />
+      </div>
+    </div>
+  </section>
+
+  <section class="benefits">
+    <div class="wrap">
+      <h2>Co certifikace přináší</h2>
+      <ul class="cards">
+        {benefits.map((item) => (
+          <li class="card">
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="tiers" id="jak-to-funguje">
+    <div class="wrap">
+      <h2>Slib je jedna věc. Doklad druhá.</h2>
+      <p class="lead lead--tight">
+        Na <a href="https://firmybezkleci.cz/">firmybezkleci.cz</a> vedeme seznam firem,
+        které se zavázaly, že od klecových vajec odejdou. Certifikace jde o krok dál:
+        potvrzuje, že se tak už skutečně stalo — a že jsme si to ověřili.
+      </p>
+
+      <div class="compare">
+        <div class="compare__col">
+          <p class="compare__label">Závazek</p>
+          <h3>Firmy bez klecí</h3>
+          <p>Firma veřejně slibuje, že přestane odebírat vejce z klecových chovů.</p>
+          <p class="compare__meta">Příslib do budoucna · bez ověření</p>
+        </div>
+
+        <div class="compare__col compare__col--strong">
+          <p class="compare__label">Certifikace</p>
+          <h3>Slušně vychovaná vejce</h3>
+          <p>Firma klecová vejce nepoužívá — v žádném výrobku a v žádné formě. Doložené dodavatelskými doklady a ověřené spolkem OBRAZ.</p>
+          <p class="compare__meta">Současný stav · ověřeno · právo užívat značku</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .hero { padding-block: clamp(3rem, 9vw, 7rem); }
+  .hero__inner {
+    display: grid; align-items: center; gap: clamp(2rem, 5vw, 4rem);
+    grid-template-columns: 1.3fr 1fr;
+  }
+  .hero__mark { display: grid; place-items: center; }
+  .hero__mark img { width: min(100%, 17rem); height: auto; }
+
+  .lead { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.4rem); max-width: var(--measure); color: var(--ink-soft); }
+  .lead--tight { margin-bottom: 2.5rem; }
+
+  .hero__actions { display: flex; gap: 0.9rem; flex-wrap: wrap; margin-top: 2rem; }
+
+  .benefits { background: var(--shell-warm); }
+  .cards {
+    list-style: none; margin: 2.5rem 0 0; padding: 0;
+    display: grid; gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+  .card h3 { margin: 0 0 0.5rem; font-size: 1.2rem; }
+  .card p { margin: 0; color: var(--ink-soft); }
+
+  .compare { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+  .compare__col { border: 1px solid var(--line); border-radius: 14px; padding: 1.75rem; }
+  .compare__col--strong { border: 2px solid var(--ink); background: var(--shell-warm); }
+  .compare__col h3 { font-size: 1.35rem; margin: 0 0 0.75rem; }
+  .compare__col p { color: var(--ink-soft); }
+  .compare__label {
+    margin: 0 0 0.35rem; font-size: 0.8rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink);
+  }
+  .compare__meta { font-size: 0.9rem; font-weight: 600; }
+
+  @media (max-width: 52rem) {
+    .hero__inner { grid-template-columns: 1fr; }
+    .hero__mark { order: -1; justify-items: start; }
+    .hero__mark img { width: min(55%, 11rem); }
+  }
+</style>
