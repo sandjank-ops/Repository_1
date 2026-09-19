@@ -27,8 +27,9 @@ const benefits = [
       <div class="hero__text">
         <h1>Slušně vychovaná vejce</h1>
         <p class="lead">
-          Certifikace pro české výrobce, kteří nepoužívají vejce z klecových chovů.
-          Ani ve skořápce, ani v melanži, ani v sušeném bílku. Nikde.
+          Certifikace původu vaječné suroviny — od skořápkových vajec po sušený bílek
+          v premixu. Doložíme celý řetězec až ke kódu chovu a potvrdíme, že
+          v certifikovaných produktech nejsou vejce z klecí.
         </p>
         <div class="hero__actions">
           <a href="/prihlaska" class="btn btn--primary">Podat přihlášku</a>
@@ -42,6 +43,21 @@ const benefits = [
       <div class="hero__mark" aria-hidden="true">
         <img src="/pan-vajicko.svg" alt="" width="260" height="338" />
       </div>
+    </div>
+  </section>
+
+  <section class="gap">
+    <div class="wrap">
+      <h2>Zákaz od roku 2027 sám o sobě nestačí.</h2>
+      <p class="lead lead--tight">
+        Od 1. ledna 2027 je chov nosnic v klecích v Česku zakázán. Zákaz je ale národní.
+        Nevztahuje se na vejce a vaječné produkty dovezené z jiných států EU ani ze třetích zemí,
+        kde klecové chovy zůstávají legální. A u zpracovaných surovin — melanže, sušeného bílku
+        a žloutku, vaječného prášku v premixech — není způsob chovu povinně značen vůbec.
+      </p>
+      <p class="gap__punch">
+        Právě tam, kde zákonná povinnost končí, začíná certifikace.
+      </p>
     </div>
   </section>
 
@@ -101,6 +117,14 @@ const benefits = [
   .lead--tight { margin-bottom: 2.5rem; }
 
   .hero__actions { display: flex; gap: 0.9rem; flex-wrap: wrap; margin-top: 2rem; }
+
+  .gap { background: var(--ink); color: var(--shell); }
+  .gap .lead { color: color-mix(in srgb, var(--shell) 78%, transparent); }
+  .gap__punch {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    font-weight: 700; max-width: var(--measure); margin: 0;
+    border-left: 4px solid var(--yolk); padding-left: 1.25rem;
+  }
 
   .benefits { background: var(--shell-warm); }
   .cards {

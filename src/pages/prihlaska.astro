@@ -1,0 +1,333 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Mirrors FRM-01 section C. Keeping this as data rather than hand-written
+// markup means the module mapping is stated once, and the radio buttons below
+// are generated from it — they can't drift out of sync with the Standard.
+const subjectTypes = [
+  { value: 'vyrobce', label: 'Výrobce potravin',                                   modules: 'A'     },
+  { value: 'gastro',  label: 'Gastronomický provoz (restaurace, hotel, catering)', modules: 'A + C' },
+  { value: 'dodavatel', label: 'Třídírna, balírna, zpracovatel, velkoobchod',      modules: 'A + B' },
+  { value: 'chov',    label: 'Dodavatel dodávající z vlastního chovu',             modules: 'A + B' },
+];
+
+const levels = [
+  { value: 'P', label: 'P — produktová', hint: 'Vyjmenovaná SKU nebo produktová řada.' },
+  { value: 'V', label: 'V — pro jednu provozovnu', hint: 'Všechny výrobky a pokrmy jedné provozovny.' },
+  { value: 'F', label: 'F — firemní', hint: 'Všechny provozovny a všechna SKU.' },
+];
+---
+
+<Layout title="Přihláška do certifikačního schématu">
+
+  <section class="intro">
+    <div class="wrap wrap--narrow">
+      <h1>Přihláška do certifikačního schématu</h1>
+      <p class="lead">
+        Formulář FRM-01 — vymezení rozsahu certifikace. Vyplňte všechny části, které se vás týkají.
+        Neúplná přihláška se vrací k doplnění.
+      </p>
+      <p class="note">
+        Údaje slouží k zařazení do modulu a cenového pásma a k posouzení rizika.
+        Nakládá se s nimi jako s důvěrnými — viz
+        <a href="/zasady-ochrany-osobnich-udaju">zásady ochrany osobních údajů</a>.
+      </p>
+    </div>
+  </section>
+
+  <div class="wrap wrap--narrow">
+    <!-- `data-netlify` tells Netlify to capture this form's POST. Swapping to a
+         different backend later means changing `action` and removing that one
+         attribute — nothing about the fields has to change. -->
+    <form class="form" name="prihlaska" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="prihlaska" />
+      <p hidden><label>Nevyplňujte: <input name="bot-field" /></label></p>
+
+      <!-- ============ A. Identifikace žadatele ============ -->
+      <!-- <fieldset> groups related controls and <legend> names that group.
+           A screen reader announces the legend before each field inside, so
+           the user hears "A. Identifikace žadatele — IČO" instead of a bare
+           "IČO" with no context. -->
+      <fieldset>
+        <legend><span class="legend__letter">A</span> Identifikace žadatele</legend>
+
+        <div class="grid">
+          <p class="field field--wide">
+            <label for="firma">Obchodní firma / název</label>
+            <input id="firma" name="firma" type="text" required autocomplete="organization" />
+          </p>
+
+          <p class="field">
+            <label for="ico">IČO</label>
+            <!-- inputmode=numeric brings up the number pad on a phone without
+                 the validation quirks of type=number (no spinners, leading
+                 zeros preserved — an IČO can start with 0). -->
+            <input id="ico" name="ico" type="text" required inputmode="numeric"
+                   pattern="[0-9]{8}" maxlength="8" aria-describedby="ico-hint" />
+            <small id="ico-hint">8 číslic, bez mezer.</small>
+          </p>
+
+          <p class="field field--wide">
+            <label for="sidlo">Sídlo</label>
+            <input id="sidlo" name="sidlo" type="text" required autocomplete="street-address" />
+          </p>
+
+          <p class="field field--wide">
+            <label for="statutar">Statutární orgán (jméno, funkce)</label>
+            <input id="statutar" name="statutar" type="text" required />
+          </p>
+
+          <p class="field field--wide">
+            <label for="kontakt">Kontaktní osoba pro certifikaci</label>
+            <input id="kontakt" name="kontakt" type="text" required autocomplete="name" />
+          </p>
+
+          <p class="field">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" required autocomplete="email" />
+          </p>
+
+          <p class="field">
+            <label for="telefon">Telefon</label>
+            <input id="telefon" name="telefon" type="tel" required autocomplete="tel" />
+          </p>
+
+          <p class="field field--wide">
+            <label for="web">Webové stránky <span class="opt">(nepovinné)</span></label>
+            <input id="web" name="web" type="url" autocomplete="url" placeholder="https://" />
+          </p>
+        </div>
+      </fieldset>
+
+      <!-- ============ B. Provozovny ============ -->
+      <fieldset>
+        <legend><span class="legend__letter">B</span> Provozovny</legend>
+        <p class="help">Uveďte všechny provozovny, v nichž nakládáte s vejci nebo vaječnými surovinami.</p>
+
+        <!-- Five rows are rendered server-side, matching the paper form. The
+             "add row" button below is an ENHANCEMENT: if JavaScript fails or is
+             blocked, the visitor still has a usable five-row form. That is the
+             whole idea of progressive enhancement — start with something that
+             works, then improve it. -->
+        <div class="rows" id="provozovny-rows">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div class="row row--provozovna">
+              <span class="row__num" aria-hidden="true">{n}</span>
+              <p class="field">
+                <label for={`prov-adresa-${n}`}>Adresa provozovny</label>
+                <input id={`prov-adresa-${n}`} name={`provozovna_${n}_adresa`} type="text" />
+              </p>
+              <p class="field">
+                <label for={`prov-icp-${n}`}>IČP</label>
+                <input id={`prov-icp-${n}`} name={`provozovna_${n}_icp`} type="text" inputmode="numeric" />
+              </p>
+              <p class="field">
+                <label for={`prov-svs-${n}`}>Číslo SVS</label>
+                <input id={`prov-svs-${n}`} name={`provozovna_${n}_svs`} type="text" />
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <button type="button" class="btn btn--ghost btn--sm" data-add-row="provozovny-rows" hidden>
+          + Přidat provozovnu
+        </button>
+      </fieldset>
+
+      <!-- ============ C. Typ subjektu a požadovaný stupeň ============ -->
+      <fieldset>
+        <legend><span class="legend__letter">C</span> Typ subjektu a požadovaný stupeň</legend>
+
+        <!-- A nested fieldset is the correct way to group a set of radios that
+             answer one question. `required` on every radio in the group means
+             the browser enforces "pick exactly one" with no JavaScript. -->
+        <fieldset class="sub">
+          <legend>Typ subjektu</legend>
+          {subjectTypes.map((t) => (
+            <label class="choice">
+              <input type="radio" name="typ_subjektu" value={t.value} required
+                     data-modules={t.modules} />
+              <span class="choice__body">
+                <span class="choice__label">{t.label}</span>
+                <span class="choice__meta">Aktivované moduly: {t.modules}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+
+        <fieldset class="sub">
+          <legend>Požadovaný stupeň certifikace</legend>
+          <label class="choice">
+            <input type="radio" name="stupen" value="dodavatelsky" required />
+            <span class="choice__body">
+              <span class="choice__label">Dodavatelský</span>
+              <span class="choice__meta">B2B osvědčení o dohledatelnosti, bez spotřebitelské známky.</span>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="stupen" value="spotrebitelsky" required />
+            <span class="choice__body">
+              <span class="choice__label">Spotřebitelský</span>
+              <span class="choice__meta">Certifikační ochranná známka pro použití na obalech a v komunikaci.</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <fieldset class="sub">
+          <legend>Požadovaná úroveň rozsahu</legend>
+          {levels.map((l) => (
+            <label class="choice" data-level={l.value}>
+              <input type="radio" name="uroven" value={l.value} required />
+              <span class="choice__body">
+                <span class="choice__label">{l.label}</span>
+                <span class="choice__meta">{l.hint}</span>
+              </span>
+            </label>
+          ))}
+          <p class="help help--warn" id="gastro-warn" hidden>
+            Gastronomické provozy mohou žádat pouze o úroveň V nebo F.
+            Dílčí certifikace jednotlivých položek menu není kontrolovatelná.
+          </p>
+        </fieldset>
+      </fieldset>
+
+      <!-- TODO — sections still to build:
+           D. Výrobky obsahující vejce nebo vaječné suroviny (repeatable)
+           E. Dodavatelé vaječných surovin (repeatable)
+           F. Objem pro zařazení do cenového pásma
+           G. Prohlášení žadatele -->
+
+      <p class="submit-row">
+        <button type="submit" class="btn btn--primary">Odeslat přihlášku</button>
+      </p>
+    </form>
+  </div>
+
+</Layout>
+
+<script>
+  // ---- Enhancement 1: let people add more rows than the paper form allowed.
+  // The buttons start hidden and are revealed here, so they only ever appear
+  // when the script actually ran.
+  document.querySelectorAll('[data-add-row]').forEach((btn) => {
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      const container = document.getElementById(btn.dataset.addRow);
+      const last = container.lastElementChild;
+      const clone = last.cloneNode(true);
+      const n = container.children.length + 1;
+
+      clone.querySelector('.row__num').textContent = String(n);
+      // Every input needs a fresh id and name, and the <label for> that points
+      // at it has to be repointed too, or clicking a label focuses the wrong box.
+      clone.querySelectorAll('input').forEach((input) => {
+        const id = input.id.replace(/\d+$/, String(n));
+        const label = clone.querySelector(`label[for="${input.id}"]`);
+        if (label) label.setAttribute('for', id);
+        input.id = id;
+        input.name = input.name.replace(/_\d+_/, `_${n}_`);
+        input.value = '';
+      });
+      container.appendChild(clone);
+      clone.querySelector('input')?.focus();
+    });
+  });
+
+  // ---- Enhancement 2: gastro provozy may not request product-level scope.
+  // The rule lives in the Standard; this just stops someone submitting an
+  // application that would be rejected on reading.
+  const produktova = document.querySelector('[data-level="P"]');
+  const warn = document.getElementById('gastro-warn');
+
+  document.querySelectorAll('[name="typ_subjektu"]').forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      const isGastro = e.target.value === 'gastro';
+      const input = produktova.querySelector('input');
+      input.disabled = isGastro;
+      if (isGastro && input.checked) input.checked = false;
+      produktova.classList.toggle('choice--disabled', isGastro);
+      warn.hidden = !isGastro;
+    });
+  });
+</script>
+
+<style>
+  .wrap--narrow { max-width: 46rem; }
+  .intro { padding-block: clamp(2.5rem, 6vw, 4rem) 1rem; }
+  .note { font-size: 0.95rem; color: var(--ink-soft); }
+
+  .form { padding-bottom: 5rem; }
+
+  fieldset {
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.75rem; margin: 0 0 1.75rem;
+  }
+  legend {
+    font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em;
+    padding-inline: 0.6rem; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .legend__letter {
+    display: grid; place-items: center;
+    width: 1.9rem; height: 1.9rem; border-radius: 50%;
+    background: var(--ink); color: var(--shell);
+    font-size: 0.95rem;
+  }
+
+  fieldset.sub { border-radius: 10px; margin-block: 1.5rem 0; padding: 1.25rem; }
+  fieldset.sub legend { font-size: 1rem; font-weight: 700; }
+
+  .help { color: var(--ink-soft); font-size: 0.95rem; margin-top: 0.25rem; }
+  .help--warn {
+    border-left: 3px solid var(--yolk-deep); padding-left: 0.9rem;
+    color: var(--ink); font-weight: 600;
+  }
+
+  .grid { display: grid; gap: 1.1rem; grid-template-columns: 1fr 1fr; margin-top: 1.25rem; }
+  .field { margin: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+  .field--wide { grid-column: 1 / -1; }
+  .opt { font-weight: 400; color: var(--ink-soft); }
+
+  label { font-weight: 600; font-size: 0.95rem; }
+  small { color: var(--ink-soft); font-size: 0.85rem; }
+
+  input[type="text"], input[type="email"], input[type="tel"], input[type="url"] {
+    font: inherit; font-size: 1rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: #fff; color: var(--ink);
+  }
+  input:focus-visible { border-color: var(--ink); }
+  /* :invalid alone would flag every empty required field before the visitor has
+     typed anything. :user-invalid waits until they have actually interacted. */
+  input:user-invalid { border-color: #b3261e; }
+
+  .rows { display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+  .row {
+    display: grid; gap: 0.85rem; align-items: end;
+    grid-template-columns: auto 2fr 1fr 1fr;
+    padding-bottom: 1.25rem; border-bottom: 1px dashed var(--line);
+  }
+  .row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .row__num { font-weight: 800; color: var(--ink-soft); padding-bottom: 0.7rem; }
+
+  .choice {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    padding: 0.85rem; border: 1px solid var(--line); border-radius: 10px;
+    margin-top: 0.75rem; cursor: pointer;
+  }
+  .choice:hover { border-color: var(--ink); }
+  .choice input { margin-top: 0.3rem; flex: none; }
+  .choice__body { display: flex; flex-direction: column; gap: 0.15rem; }
+  .choice__label { font-weight: 700; }
+  .choice__meta { font-size: 0.9rem; color: var(--ink-soft); }
+  .choice--disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .submit-row { margin-top: 2.5rem; }
+
+  @media (max-width: 40rem) {
+    .grid { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; }
+    .row__num { display: none; }
+    fieldset { padding: 1.25rem; }
+  }
+</style>
