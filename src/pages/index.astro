@@ -1,0 +1,20 @@
+---
+// Everything between the --- fences is "frontmatter": JavaScript that runs at
+// BUILD time, on the server, never in the visitor's browser. Use it to define
+// variables, read files, or fetch data. Nothing here is shipped to the browser.
+const campaignName = 'Campaign Name';
+---
+
+<!-- Below the fences is the HTML template. `{campaignName}` drops the value
+     of that variable into the markup. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{campaignName}</title>
+  </head>
+  <body>
+    <h1>{campaignName}</h1>
+    <p>Placeholder. We replace this together.</p>
+  </body>
+</html>
